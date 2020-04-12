@@ -8,7 +8,6 @@ namespace OpenRasta.TypeSystem.ReflectionBased
     public class ReflectionBasedMethod : IMethod
     {
         readonly MethodInfo _methodInfo;
-        readonly object _syncRoot = new object();
 
         internal ReflectionBasedMethod(IMember ownerType, MethodInfo methodInfo)
         {
