@@ -14,6 +14,8 @@ namespace OpenRasta.TypeSystem.ReflectionBased
 
         readonly object _syncRoot = new object();
 
+        readonly Attribute[] _attributes;
+
         IType _memberType;
 
         ILookup<string, IMethod> _methodsCache;
@@ -24,6 +26,9 @@ namespace OpenRasta.TypeSystem.ReflectionBased
             SurrogateProvider = typeSystem.SurrogateProvider;
             PathManager = typeSystem.PathManager;
             TargetType = targetType;
+
+            var attributes = Attribute.GetCustomAttributes(targetType, true);
+            _attributes = attributes.Length > 0 ? attributes : Array.Empty<Attribute>();
         }
 
         public virtual bool IsEnumerable
@@ -79,7 +84,19 @@ namespace OpenRasta.TypeSystem.ReflectionBased
 
         public virtual IEnumerable<TAttribute> FindAttributes<TAttribute>() where TAttribute : class
         {
-            return Attribute.GetCustomAttributes(TargetType, true).OfType<TAttribute>();
+            if (_attributes.Length == 0)
+            {
+                yield break;
+            }
+
+            for (var i = 0; i < _attributes.Length; i++)
+            {
+                var attribute = _attributes[i];
+                if (attribute is TAttribute attr)
+                {
+                    yield return attr;
+                }
+            }
         }
 
         public virtual bool CanSetValue(object value)
